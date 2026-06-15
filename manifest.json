@@ -5,8 +5,7 @@
   "description": "Convert any article into a clean Markdown file and save it locally.",
   "permissions": [
     "activeTab",
-    "downloads",
-    "scripting"
+    "downloads"
   ],
   "action": {
     "default_popup": "popup.html"

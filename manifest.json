@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "ReadLater.md",
+  "version": "1.0",
+  "description": "Convert any article into a clean Markdown file and save it locally.",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

@@ -1,12 +1,28 @@
 document.getElementById('clip-btn').addEventListener('click', async () => {
-  // Get the active browser tab
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
   if (!tab) return;
 
-  // Inject our content script into that active tab to grab and process the HTML
-  chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    files: ['readability.js', 'turndown.js', 'content.js']
-  });
+  try {
+    // 1. Load Readability first
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['readability.js']
+    });
+
+    // 2. Load Turndown second
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['turndown.js']
+    });
+
+    // 3. Finally, execute the content script that uses them
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['content.js']
+    });
+
+  } catch (err) {
+    console.error("Injection failed: ", err);
+  }
 });

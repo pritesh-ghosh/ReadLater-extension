@@ -3,17 +3,36 @@
   const cloneDoc = document.cloneNode(true);
   
   // 2. Pass it through Mozilla Readability to extract just the core article
-  // (Assuming readability.js loaded successfully globally)
+  if (typeof Readability === 'undefined') {
+    alert("Readability library failed to load. Please refresh the page and try again.");
+    return;
+  }
+  
   const reader = new Readability(cloneDoc);
   const article = reader.parse();
 
   if (!article) {
-    alert("Could not parse an article from this page!");
+    alert("Could not parse an article from this page. Try an article or news site!");
     return;
   }
 
   // 3. Initialize Turndown to convert HTML to Markdown
-  const turndownService = new Turndown({ headingStyle: 'atx' });
+  if (typeof Turndown === 'undefined') {
+    alert("Turndown library failed to load.");
+    return;
+  }
+  
+// 3. Initialize Turndown to convert HTML to Markdown
+  let turndownService;
+  if (typeof Turndown !== 'undefined') {
+    turndownService = new Turndown({ headingStyle: 'atx' });
+  } else if (typeof window.Turndown !== 'undefined') {
+    turndownService = new window.Turndown({ headingStyle: 'atx' });
+  } else {
+    alert("Turndown library failed to attach globally.");
+    return;
+  }
+  
   const markdownContent = turndownService.turndown(article.content);
 
   // 4. Construct our final Markdown file layout
@@ -29,7 +48,7 @@ date_saved: ${new Date().toLocaleDateString()}
 ${markdownContent}
 `;
 
-  // 5. Send this completed text to background.js to download it safely
+  // 5. Send the RAW markdown text to background.js safely
   chrome.runtime.sendMessage({
     action: "download_file",
     filename: `${article.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`,
